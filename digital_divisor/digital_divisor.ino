@@ -15,8 +15,8 @@ Adafruit_DCMotor *myMotor = AFMS.getMotor(1);
  
 void setup() {
   Serial.begin(9600);
-  pinMode(photoResistor1Pin, OUTPUT);
-  pinMode(photoResistor2Pin, OUTPUT);
+  pinMode(photoResistor1Pin, INPUT);
+  pinMode(photoResistor2Pin, INPUT);
   AFMS.begin();  // create with the default frequency 1.6KHz -> change by passing in frequency as parameter in Hz
   myMotor->setSpeed(motorSpeed);
 }
