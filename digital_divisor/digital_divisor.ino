@@ -3,9 +3,10 @@
 // TODO change these:
 const int photoResistor1Pin = 1;
 const int photoResistor2Pin = 2;
+const int userResistorPin = 5;
 const int limitSwitch1Pin = 3;
 const int limitSwitch2Pin = 4;
-const int rangeDiff = 500;
+const int stoppingValue = 500;
 const int motorSpeed = 150;
 
 // Create the motor shield object with the default I2C address
@@ -17,6 +18,7 @@ void setup() {
   Serial.begin(9600);
   pinMode(photoResistor1Pin, INPUT);
   pinMode(photoResistor2Pin, INPUT);
+  pinMode(userResistorPin, INPUT);
   AFMS.begin();  // create with the default frequency 1.6KHz -> change by passing in frequency as parameter in Hz
   myMotor->setSpeed(motorSpeed);
 }
@@ -28,14 +30,21 @@ int getResistanceDifference() {
   return difference;
 }
 
+int getUserResistance() {
+  return analogRead(userResistorPin);
+}
+
 // TODO: Map difference to positioning and operate motor
 void moveVisor(int difference) {
-  if (difference > rangeDiff) {
-    myMotor->run(FORWARD);
-  } else if (difference < rangeDiff) {
-    myMotor->run(BACKWARD);
-  } else {
+  int userResistance = getUserResistance();
+  Serial.print("difference: "+difference);
+  Serial.print("user resistance: " + userResistance);
+  if (userResistance <= stoppingValue) {
     stopMovingVisor();
+  } else if (difference > 0) {
+    myMotor->run(FORWARD);
+  } else {
+    myMotor->run(BACKWARD);
   }
 }
 
