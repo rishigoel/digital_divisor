@@ -1,13 +1,16 @@
+#include <Wire.h>
 #include <Adafruit_MotorShield.h>
 
 // TODO change these:
-const int photoResistor1Pin = 1;
-const int photoResistor2Pin = 2;
-const int userResistorPin = 5;
+const int photoResistor1Pin = A0;
+const int photoResistor2Pin = A1;
+const int userResistorPin = A2; //need a new way of doing user resistance
 const int limitSwitch1Pin = 3;
 const int limitSwitch2Pin = 4;
 const int stoppingValue = 500;
-const int motorSpeed = 150;
+const int motorSpeed = 100;
+const int equivalentLight = 30;
+const int resistorOffset = 50; //allows us to manage differences in resistor construction
 
 // Create the motor shield object with the default I2C address
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
@@ -26,7 +29,7 @@ void setup() {
 int getResistanceDifference() {
   int pr1 = analogRead(photoResistor1Pin);
   int pr2 = analogRead(photoResistor2Pin);
-  int difference = pr2 - pr1;
+  int difference = pr2 - pr1 - resistorOffset;
   return difference;
 }
 
@@ -37,9 +40,9 @@ int getUserResistance() {
 // TODO: Map difference to positioning and operate motor
 void moveVisor(int difference) {
   int userResistance = getUserResistance();
-  Serial.print("difference: "+difference);
-  Serial.print("user resistance: " + userResistance);
-  if (userResistance <= stoppingValue) {
+  Serial.print("difference = ");
+  Serial.println(difference);
+  if (abs(difference+userResistance) <= equivalentLight) {
     stopMovingVisor();
   } else if (difference > 0) {
     myMotor->run(FORWARD);
@@ -57,7 +60,7 @@ void loop() {
   moveVisor(getResistanceDifference());
   delay(50);
   if (digitalRead(limitSwitch1Pin)==LOW || digitalRead(limitSwitch2Pin)==LOW) {
-    stopMovingVisor();
+    //stopMovingVisor();
   }
   delay(100);
 }
