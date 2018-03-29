@@ -4,7 +4,6 @@
 // TODO change these:
 const int photoResistor1Pin = A0;
 const int photoResistor2Pin = A1;
-const int userResistorPin = A2; //need a new way of doing user resistance
 const int limitSwitch1Pin = 3;
 const int limitSwitch2Pin = 4;
 const int stoppingValue = 500;
@@ -21,7 +20,6 @@ void setup() {
   Serial.begin(9600);
   pinMode(photoResistor1Pin, INPUT);
   pinMode(photoResistor2Pin, INPUT);
-  pinMode(userResistorPin, INPUT);
   AFMS.begin();  // create with the default frequency 1.6KHz -> change by passing in frequency as parameter in Hz
   myMotor->setSpeed(motorSpeed);
 }
@@ -33,16 +31,11 @@ int getResistanceDifference() {
   return difference;
 }
 
-int getUserResistance() {
-  return analogRead(userResistorPin);
-}
-
 // TODO: Map difference to positioning and operate motor
 void moveVisor(int difference) {
-  int userResistance = getUserResistance();
   Serial.print("difference = ");
   Serial.println(difference);
-  if (abs(difference+userResistance) <= equivalentLight) {
+  if (abs(difference) <= equivalentLight) {
     stopMovingVisor();
   } else if (difference > 0) {
     myMotor->run(FORWARD);
